@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>TRX Force — 8 Semaines</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#13131a; --surface2:#1c1c28;
+  --accent:#e8c840; --accent2:#f0d060;
+  --white:#f0f0f0; --muted:#6a6a80; --border:#2a2a38;
+  --push:#e84040; --pull:#4080e8; --legs:#e8c840; --full:#a040e8;
+  --eq-trx:#3a8080; --eq-db:#805a3a; --eq-bz:#3a6080; --eq-pu:#806a3a;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--white);-webkit-font-smoothing:antialiased}
+.screen{display:none;position:fixed;inset:0;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* NAV */
+.top-bar{padding:52px 20px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;background:var(--bg)}
+.back-btn{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.back-btn svg{width:20px;height:20px;stroke:var(--white);fill:none;stroke-width:2}
+.bar-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;flex:1}
+
+/* ── EQUIPMENT BADGES ── */
+.eq-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600;
+  border-radius:6px;padding:3px 8px;border:1px solid;
+}
+.eq-TRX    {color:#5bbfbf;border-color:rgba(91,191,191,.3);background:rgba(91,191,191,.08)}
+.eq-Haltères{color:#c8904a;border-color:rgba(200,144,74,.3);background:rgba(200,144,74,.08)}
+.eq-BarreZ {color:#4aa0c8;border-color:rgba(74,160,200,.3);background:rgba(74,160,200,.08)}
+.eq-Tractions{color:#c8b04a;border-color:rgba(200,176,74,.3);background:rgba(200,176,74,.08)}
+
+/* HOME */
+#homeScreen{background:var(--bg)}
+.home-hero{padding:56px 24px 20px;position:relative;flex-shrink:0}
+.home-hero .kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.home-hero h1{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:2px;line-height:1}
+.home-hero h1 span{color:var(--accent)}
+.glow-orb{position:absolute;top:-40px;right:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(232,200,64,.13) 0%,transparent 70%);pointer-events:none}
+
+.week-selector{padding:0 20px 20px;flex-shrink:0}
+.week-selector-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.week-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.week-tabs::-webkit-scrollbar{display:none}
+.week-tab{flex:0 0 auto;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 14px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--muted);cursor:pointer;transition:all .2s ease;display:flex;flex-direction:column;align-items:center;gap:2px}
+.week-tab .wtab-label{font-size:9px;letter-spacing:2px;text-transform:uppercase}
+.week-tab.active{background:var(--accent);border-color:var(--accent);color:#0a0a0f}
+
+.phase-badge{margin:0 20px 16px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.phase-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.phase-text .phase-name{font-weight:600;font-size:13px}
+.phase-text .phase-desc{font-size:12px;color:var(--muted);margin-top:2px}
+
+.sessions-list{padding:0 20px 40px;display:flex;flex-direction:column;gap:12px}
+.scard{background:var(--surface);border-radius:20px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:transform .12s ease}
+.scard:active{transform:scale(.98)}
+.scard-bar{height:3px}
+.scard.push .scard-bar{background:var(--push)}
+.scard.pull .scard-bar{background:var(--pull)}
+.scard.legs .scard-bar{background:var(--legs)}
+.scard.full .scard-bar{background:var(--full)}
+.scard-body{padding:16px 18px 18px}
+.scard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.scard-num{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.scard-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
+.scard.push .scard-name{color:var(--push)}
+.scard.pull .scard-name{color:var(--pull)}
+.scard.legs .scard-name{color:var(--legs)}
+.scard.full .scard-name{color:var(--full)}
+.scard-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.scard-play{width:42px;height:42px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.scard-play svg{width:16px;height:16px}
+.scard-stats{display:flex;gap:18px;margin-bottom:12px}
+.scard-stat .sv{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white)}
+.scard-stat .sl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.scard-equipment{display:flex;flex-wrap:wrap;gap:5px;padding-top:10px;border-top:1px solid var(--border)}
+.scard.done-session{border-color:rgba(60,180,80,.35)}
+.scard.done-session .scard-bar{background:linear-gradient(90deg,#3cb454,#2a9a40)!important}
+.scard-done-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:#3cb454;font-weight:600;margin-top:8px;padding-top:8px;border-top:1px solid rgba(60,180,80,.2)}
+.rest-next-ex{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:14px 16px;width:100%;margin-bottom:20px;text-align:left}
+.rest-next-ex .rne-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.rest-next-ex .rne-name{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);margin-bottom:6px;letter-spacing:1px}
+.rest-next-ex .rne-desc{font-size:12px;color:#b0b0c0;line-height:1.5;margin-bottom:8px}
+.rest-next-ex .rne-tip{font-size:11px;color:rgba(232,200,64,.7);line-height:1.4}
+.rest-paused{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px}
+
+/* OVERVIEW */
+#overviewScreen{background:var(--bg)}
+.ov-hero{padding:0 20px 20px;border-bottom:1px solid var(--border);margin:0 20px;flex-shrink:0}
+.ov-kicker{font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.ov-stats{display:flex;gap:24px;margin-bottom:14px}
+.ov-stat .v{font-family:'Bebas Neue',sans-serif;font-size:30px}
+.ov-stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.ov-equipment{display:flex;flex-wrap:wrap;gap:6px}
+.ex-list{padding:14px 20px;display:flex;flex-direction:column;gap:9px}
+.ex-item{background:var(--surface);border-radius:14px;border:1px solid var(--border);padding:13px 15px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.ex-item:active{opacity:.8}
+.ex-n{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--muted);width:26px;flex-shrink:0}
+.ex-inf{flex:1}
+.ex-inf .en{font-size:14px;font-weight:600;margin-bottom:3px}
+.ex-inf .ed{font-size:12px;color:var(--muted);margin-bottom:4px}
+.ex-ico{font-size:22px;flex-shrink:0}
+.start-btn{margin:0 20px 36px;flex-shrink:0;background:var(--accent);color:#0a0a0f;border:none;border-radius:16px;padding:17px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;width:calc(100% - 40px)}
+.start-btn:active{background:var(--accent2)}
+
+/* WORKOUT */
+#workoutScreen{background:var(--bg)}
+.wo-topbar{padding:52px 20px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.prog-wrap{flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease}
+.prog-lbl{font-size:12px;color:var(--muted);flex-shrink:0;font-variant-numeric:tabular-nums}
+.ex-view{padding:0 20px;display:flex;flex-direction:column;gap:14px}
+.ex-card{background:var(--surface);border-radius:22px;border:1px solid var(--border);padding:24px 20px 22px;display:flex;flex-direction:column;align-items:center;min-height:210px;justify-content:center}
+.ex-emoji{font-size:64px;margin-bottom:12px;line-height:1;filter:drop-shadow(0 0 20px rgba(232,200,64,.25))}
+.ex-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;text-align:center;margin-bottom:4px}
+.ex-sub{font-size:13px;color:var(--muted);margin-bottom:10px;text-align:center}
+.ex-eq-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+.set-dots{display:flex;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);transition:all .3s ease}
+.dot.done{background:var(--accent);border-color:var(--accent)}
+.dot.cur{background:transparent;border-color:var(--accent);border-width:2px}
+.desc-card{background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:15px}
+.desc-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.desc-txt{font-size:13px;line-height:1.65}
+.tip-card{background:rgba(232,200,64,.07);border:1px solid rgba(232,200,64,.2);border-radius:12px;padding:12px;display:flex;align-items:flex-start;gap:8px}
+.tip-icon{font-size:14px;flex-shrink:0}
+.tip-txt{font-size:12px;color:var(--accent);line-height:1.5}
+.wo-actions{padding:14px 20px 36px;display:flex;flex-direction:column;gap:9px;flex-shrink:0}
+.btn-main{background:var(--accent);color:#0a0a0f;border:none;border-radius:15px;padding:17px;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:2px;cursor:pointer;width:100%}
+.btn-main:active{transform:scale(.98)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:15px;padding:13px;font-size:14px;cursor:pointer;width:100%}
+
+/* REST */
+.rest-overlay{position:fixed;inset:0;background:rgba(10,10,15,.96);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px}
+.rest-overlay.on{display:flex}
+.rest-lbl{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:28px}
+.rest-num{font-family:'Bebas Neue',sans-serif;font-size:96px;color:var(--accent);line-height:1;margin-bottom:10px}
+.rest-nxt{font-size:13px;color:var(--muted);text-align:center;margin-bottom:36px}
+.rest-nxt strong{color:var(--white)}
+.rest-skip{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:13px 30px;font-size:14px;color:var(--white);cursor:pointer}
+
+/* DONE */
+#doneScreen{align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+.done-em{font-size:76px;margin-bottom:20px}
+.done-ttl{font-family:'Bebas Neue',sans-serif;font-size:50px;letter-spacing:2px;color:var(--accent);margin-bottom:8px}
+.done-sub{font-size:13px;color:var(--muted);margin-bottom:44px;line-height:1.6}
+.done-stats{display:flex;gap:28px;margin-bottom:44px}
+.done-stat .dv{font-family:'Bebas Neue',sans-serif;font-size:38px}
+.done-stat .dl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.done-btn{background:var(--accent);color:#0a0a0f;border:none;border-radius:16px;padding:17px 40px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;cursor:pointer;width:100%}
+
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.up{animation:up .28s ease forwards}
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,15,.97);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;animation:up .22s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="homeScreen" class="screen active">
+  <div class="home-hero">
+    <div class="glow-orb"></div>
+    <div class="kicker">Programme 8 semaines</div>
+    <h1>TRX <span>FORCE</span></h1>
+  </div>
+  <div class="week-selector">
+    <div class="week-selector-label">Semaine en cours</div>
+    <div class="week-tabs" id="weekTabs"></div>
+  </div>
+  <div class="phase-badge" id="phaseBadge">
+    <div class="phase-dot"></div>
+    <div class="phase-text">
+      <div class="phase-name" id="phaseName"></div>
+      <div class="phase-desc" id="phaseDesc"></div>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="sessions-list" id="sessionsList"></div>
+    <div style="padding:0 20px 40px">
+      <div onclick="openBonus()" style="background:var(--surface2);border:1px dashed rgba(232,200,64,.35);border-radius:20px;padding:18px 20px;cursor:pointer;display:flex;align-items:center;gap:16px" ontouchstart="this.style.transform='scale(.98)'" ontouchend="this.style.transform=''">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(232,200,64,.1);border:1px solid rgba(232,200,64,.3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎲</div>
+        <div style="flex:1">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--accent)">SÉANCE BONUS</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">6 exercices aléatoires · Full Body · ~35 min</div>
+        </div>
+        <div style="font-size:22px;color:var(--muted)">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overviewScreen" class="screen">
+  <div class="top-bar">
+    <div class="back-btn" onclick="goHome()"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></div>
+    <div class="bar-title" id="ovTitle"></div>
+  </div>
+  <div class="ov-hero">
+    <div class="ov-kicker" id="ovKicker"></div>
+    <div class="ov-stats">
+      <div class="ov-stat"><div class="v" id="ovEx"></div><div class="l">Exercices</div></div>
+      <div class="ov-stat"><div class="v" id="ovSets"></div><div class="l">Séries</div></div>
+      <div class="ov-stat"><div class="v" id="ovTime"></div><div class="l">Min est.</div></div>
+    </div>
+    <div class="ov-equipment" id="ovEquipment"></div>
+  </div>
+  <div class="scroll-area">
+    <div class="ex-list" id="ovExList"></div>
+  </div>
+  <button class="start-btn" onclick="startWorkout()">▶ LANCER LA SÉANCE</button>
+</div>
+
+<!-- WORKOUT -->
+<div id="workoutScreen" class="screen">
+  <div class="wo-topbar">
+    <div class="back-btn" onclick="confirmQuit()"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></div>
+    <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-lbl" id="progLbl"></div>
+  </div>
+  <div class="scroll-area">
+    <div class="ex-view" id="exView"></div>
+  </div>
+  <div class="wo-actions">
+    <button class="btn-main" id="actionBtn" onclick="nextAction()">SÉRIE TERMINÉE ✓</button>
+    <button class="btn-ghost" onclick="skipEx()">Passer cet exercice</button>
+  </div>
+</div>
+
+<!-- REST -->
+<div class="rest-overlay" id="restOverlay">
+  <div class="rest-lbl">⏱ Repos</div>
+  <div class="rest-num" id="restNum">60</div>
+  <div class="rest-next-ex" id="restNextEx" style="display:none">
+    <div class="rne-label">Prochain exercice</div>
+    <div class="rne-name" id="rneN"></div>
+    <div class="rne-desc" id="rneD"></div>
+    <div class="rne-tip" id="rneT"></div>
+  </div>
+  <div class="rest-nxt" id="restNxt"></div>
+  <div class="rest-skip" onclick="skipRest()">Passer le repos →</div>
+</div>
+
+<!-- DONE -->
+<div id="doneScreen" class="screen">
+  <div class="done-em">🔥</div>
+  <div class="done-ttl">SÉANCE<br>TERMINÉE</div>
+  <div class="done-sub" id="doneSub"></div>
+  <div class="done-stats">
+    <div class="done-stat"><div class="dv" id="dEx"></div><div class="dl">Exercices</div></div>
+    <div class="done-stat"><div class="dv" id="dSets"></div><div class="dl">Séries</div></div>
+    <div class="done-stat"><div class="dv" id="dTime"></div><div class="dl">Minutes</div></div>
+  </div>
+  <button class="done-btn" onclick="startStretching()" style="margin-bottom:12px">🧘 ROUTINE ÉTIREMENTS</button>
+  <button class="done-btn" onclick="goHome()" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border)">Passer — Retour à l'accueil</button>
+</div>
+
+<!-- STRETCHING -->
+<div id="stretchScreen" class="screen">
+  <div class="wo-topbar">
+    <div class="back-btn" onclick="stopStretching()"><svg viewBox="0 0 24 24"><polyline points="15,18 9,12 15,6"/></svg></div>
+    <div class="prog-wrap"><div class="prog-fill" id="stretchProgFill"></div></div>
+    <div class="prog-lbl" id="stretchProgLbl"></div>
+  </div>
+  <div class="scroll-area">
+    <div style="padding:0 20px;display:flex;flex-direction:column;gap:14px" id="stretchView"></div>
+  </div>
+  <div style="padding:14px 20px 36px;flex-shrink:0">
+    <button class="btn-main" id="stretchBtn" onclick="nextStretch()">SUIVANT →</button>
+  </div>
+</div>
+
+<!-- STRETCH DONE -->
+<div id="stretchDoneScreen" class="screen" style="align-items:center;justify-content:center;padding:40px 24px;text-align:center">
+  <div style="font-size:76px;margin-bottom:20px">🧘</div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:46px;letter-spacing:2px;color:var(--accent);margin-bottom:10px">BIEN RÉCUPÉRÉ</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:48px;line-height:1.7">Mobilité et souplesse travaillées.<br>Ton corps te remerciera demain !</div>
+  <button class="done-btn" onclick="goHome()">RETOUR À L'ACCUEIL</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  ÉQUIPEMENTS
+// ═══════════════════════════════════════════════════
+const EQ = {
+  TRX:      { label:"TRX",       icon:"🔗" },
+  DB:       { label:"Haltères",  icon:"🏋️" },
+  BZ:       { label:"Barre Z",   icon:"〽️" },
+  PU:       { label:"Tractions", icon:"🙌" },
+};
+
+// ═══════════════════════════════════════════════════
+//  BIBLIOTHÈQUE D'EXERCICES
+//  eq : tableau des équipements requis (clés EQ)
+// ═══════════════════════════════════════════════════
+const EXS = {
+  /* ── TRX PUSH ── */
+  atomicPushup:   { name:"Atomic Push-Up",      emoji:"💥", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Atomic+Push+Up+tutorial",
+    desc:"Pieds dans les sangles en planche. Pompe complet, puis au point haut ramène les genoux vers la poitrine, puis reviens.",
+    tip:"Hanches alignées — ne les laisse pas monter quand tu ramènes les genoux." },
+  pike:           { name:"TRX Pike",            emoji:"🔺", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Pike+tutorial",
+    desc:"Pieds dans les sangles, corps en planche. Monte les hanches en V inversé, jambes tendues, regard entre les mains.",
+    tip:"Expire à la montée. Plus les hanches montent, plus les abdos travaillent." },
+  bodySaw:        { name:"Body Saw",            emoji:"⚡", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Body+Saw+core+tutorial",
+    desc:"Planche avant-bras, pieds dans les sangles. Pousse en arrière amplitude maximale, puis reviens.",
+    tip:"Gainage strict — le bas du dos ne doit pas se creuser." },
+  chestPress:     { name:"Chest Press TRX",     emoji:"🏋️", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Chest+Press+tutorial",
+    desc:"Face aux sangles, incliné vers l'avant. Descends la poitrine vers les poignées, puis pousse. Plus tu es horizontal, plus c'est dur.",
+    tip:"Règle l'intensité avec ton angle corporel." },
+  tricepsPress:   { name:"Triceps Press TRX",   emoji:"💪", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Triceps+Press+tutorial",
+    desc:"Face aux sangles, corps incliné. Coudes proches du corps, plie-les pour amener le front vers les poignées, puis étends.",
+    tip:"Coudes hauts et serrés — sinon les épaules prennent le relais." },
+  plankRotation:  { name:"Plank Rotation",      emoji:"🌀", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Plank+Rotation+tutorial",
+    desc:"Planche pieds dans les sangles. Ouvre le corps sur le côté en levant un bras vers le plafond, hanches stables.",
+    tip:"La rotation vient du thorax, pas des hanches." },
+  declinePushup:  { name:"Decline Push-Up TRX", emoji:"🔻", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Decline+Push+Up+tutorial",
+    desc:"Pieds en hauteur dans les sangles, corps en planche inclinée. Pompe standard avec plus de charge sur le haut de la poitrine.",
+    tip:"Corps parfaitement droit. Plus les pieds sont hauts, plus c'est difficile." },
+  pikesPushup:    { name:"Pike to Push-Up",     emoji:"🔺💥", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Pike+Push+Up+combo+tutorial",
+    desc:"Enchaîne un Pike complet puis immédiatement un pompe. C'est 1 rep. Contrôle la descente.",
+    tip:"Expire à chaque effort. Ton rythme de respiration guide le mouvement." },
+  sidePlank:      { name:"Side Plank TRX",      emoji:"📐", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Side+Plank+tutorial",
+    desc:"Planche latérale avec un pied dans la sangle inférieure. Tiens la position, hanches hautes.",
+    tip:"Serre les fessiers pour stabiliser. Si ça tremble, c'est que ça travaille." },
+  arrowheadPushup:{ name:"Arrowhead Push-Up",   emoji:"🏹", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Arrowhead+Push+Up+tutorial",
+    desc:"Pieds dans les sangles. Descends en écartant les bras en diagonale (forme de flèche), remonte en les ramenant.",
+    tip:"Amplitude maximale à la descente — c'est là que le grand pectoral s'étire vraiment." },
+  fallout:        { name:"Fallout TRX",         emoji:"🌊", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Fallout+ab+exercise+tutorial",
+    desc:"Face aux sangles, bras tendus. Glisse vers l'avant en laissant les bras monter au-dessus de la tête, puis reviens.",
+    tip:"Plus tu vas loin, plus les abdos profonds travaillent." },
+  pushupHold:     { name:"Push-Up Isométrique", emoji:"🧱", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Push+Up+hold+isometric+tutorial",
+    desc:"En bas du pompe (coudes à 90°), tiens la position le temps indiqué. Corps parfaitement aligné.",
+    tip:"Serre les poings fort dans les sangles — ça stabilise toute la chaîne." },
+  /* ── TRX PULL ── */
+  oneArmRow:      { name:"One-Arm Row TRX",     emoji:"🎯", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+One+Arm+Row+tutorial",
+    desc:"Une sangle, corps incliné. Tire en une main avec rotation du buste pour amplifier le mouvement. Amplitude totale.",
+    tip:"La rotation du buste active mieux le grand dorsal." },
+  invertedRow:    { name:"Inverted Row",        emoji:"🔼", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Inverted+Row+feet+elevated+tutorial",
+    desc:"Pieds surélevés, corps aligné. Tire la poitrine vers les poignées, coudes à 45°.",
+    tip:"Corps rigide comme une planche. Plus les pieds sont hauts, plus c'est dur." },
+  facePull:       { name:"Face Pull TRX",       emoji:"🎯", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Face+Pull+tutorial",
+    desc:"Face aux sangles, légèrement incliné arrière. Tire les poignées vers le visage, coudes hauts et écartés. Squeeze les omoplates.",
+    tip:"Coudes plus hauts que les épaules — sinon tu travailles les biceps plutôt que les deltoïdes postérieurs." },
+  ytw:            { name:"YTW TRX",             emoji:"🔡", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+YTW+shoulder+exercise+tutorial",
+    desc:"Face aux sangles. Y (bras en diagonale haute), T (horizontal), W (coudes pliés mains aux oreilles). Enchaîne les 3 sans pause.",
+    tip:"Mouvement lent — ce sont des muscles stabilisateurs, pas des moteurs." },
+  renegadeRow:    { name:"Renegade Row TRX",    emoji:"⚡", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Renegade+Row+tutorial",
+    desc:"Position pompe, une main dans la sangle. Tire vers la hanche en gardant les hanches horizontales.",
+    tip:"Autant un exercice de gainage que de tirage. Lent = plus efficace." },
+  highRow:        { name:"High Row TRX",        emoji:"⬆️", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+High+Row+tutorial",
+    desc:"Face aux sangles, bras tirés au-dessus de l'horizontale. Coudes très hauts, cible le trapèze moyen et les rhomboïdes.",
+    tip:"Angle inhabituel qui va chercher les muscles posturaux en profondeur." },
+  pullToRotation: { name:"Pull & Rotation TRX", emoji:"🔄", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Pull+to+Rotation+tutorial",
+    desc:"Tire les sangles vers toi et fais simultanément pivoter le buste pour ouvrir le corps. La traction et la rotation sont synchrones.",
+    tip:"Un seul geste fluide — pas deux mouvements séparés." },
+  lowRow:         { name:"Low Row TRX",         emoji:"⬇️", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Low+Row+tutorial",
+    desc:"Corps incliné arrière, sangles basses. Tire en gardant les coudes proches du corps, poignées vers les hanches.",
+    tip:"Vise les hanches avec les poignées — tu cibles mieux le grand dorsal." },
+  supineRow:      { name:"Supine Row TRX",      emoji:"🛏️", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Supine+Row+tutorial",
+    desc:"Allongé sur le dos sous les sangles, bras tendus. Tire ton corps vers le haut en corps rigide.",
+    tip:"Imagine que tu veux coller ta poitrine aux poignées." },
+  prongRow:       { name:"Prong Row TRX",       emoji:"🦾", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Prong+Row+tutorial",
+    desc:"En appui sur les mains, tire les sangles vers la hanche alternativement. Corps stable.",
+    tip:"Les hanches ne bougent pas. Gainage prioritaire sur la charge." },
+  /* ── TRACTIONS ── */
+  pullupPro:      { name:"Tractions Pronation", emoji:"🙌", eq:["PU"], yt:"https://www.youtube.com/results?search_query=pull+up+pronation+technique+tutorial",
+    desc:"Barre de traction, prise pronation (paumes vers l'avant), largeur d'épaules ou plus. Tire jusqu'à ce que le menton dépasse la barre.",
+    tip:"Initie le mouvement avec les omoplates avant de plier les coudes. Descente lente = plus efficace." },
+  pullupSup:      { name:"Tractions Supination", emoji:"🙌", eq:["PU"], yt:"https://www.youtube.com/results?search_query=chin+up+supination+technique+tutorial",
+    desc:"Barre de traction, prise supination (paumes vers toi), largeur d'épaules. Tire jusqu'au menton au-dessus de la barre. Active biceps + grand dorsal.",
+    tip:"La supination précharge les biceps — excellent complément au curl barre Z." },
+  pullupWide:     { name:"Tractions Large",     emoji:"🙌", eq:["PU"], yt:"https://www.youtube.com/results?search_query=wide+grip+pull+up+tutorial",
+    desc:"Barre de traction, prise pronation large. Cible le grand dorsal en amplitude d'étirement maximale. Descends complètement.",
+    tip:"Ne monte pas jusqu'au menton obligatoirement — l'amplitude en bas est plus importante que le point haut." },
+  pullupNarrow:   { name:"Tractions Serrées",   emoji:"🙌", eq:["PU"], yt:"https://www.youtube.com/results?search_query=narrow+grip+pull+up+tutorial",
+    desc:"Barre de traction, prise neutre serrée ou pronation mains à 20cm. Cible les brachial antérieur et la partie interne du dos.",
+    tip:"Imagine que tu veux casser la barre en deux avec les mains — ça améliore l'activation musculaire." },
+  /* ── BARRE Z BICEPS ── */
+  curlBZ:         { name:"Curl Barre Z",        emoji:"〽️", eq:["BZ"], yt:"https://www.youtube.com/results?search_query=EZ+bar+curl+biceps+tutorial",
+    desc:"Debout, barre Z en prise supination. Fléchis les coudes en gardant les coudes fixes le long du corps. Monte jusqu'en haut, descente complète et contrôlée.",
+    tip:"20 kg × 12 reps × 4–5 séries. Pas de balancier — si tu te penches en arrière, c'est trop lourd." },
+  curlBZIncline:  { name:"Curl BZ Incliné",     emoji:"〽️", eq:["BZ"], yt:"https://www.youtube.com/results?search_query=EZ+bar+incline+curl+tutorial",
+    desc:"Assis sur un banc incliné, barre Z en prise supination. L'inclinaison étire les biceps en position basse pour une activation accrue.",
+    tip:"Tempo lent en descente (3 secondes). L'étirement en bas est le secret de cet exercice." },
+  curlBZConc:     { name:"Curl BZ Concentré",   emoji:"〽️", eq:["BZ"], yt:"https://www.youtube.com/results?search_query=EZ+bar+concentration+curl+tutorial",
+    desc:"Assis, coude calé contre la cuisse, curl sur une seule main avec une des poignées de la barre Z. Isole le biceps.",
+    tip:"Poids plus léger qu'au curl standard. L'isolation est totale — pas d'aide possible du dos." },
+  /* ── HALTÈRES BICEPS & ÉPAULES ── */
+  curlDB:         { name:"Curl Haltères Alterné",emoji:"🏋️", eq:["DB"], yt:"https://www.youtube.com/results?search_query=dumbbell+alternating+curl+tutorial",
+    desc:"Debout ou assis, curl haltère alternant bras gauche / droit. Supination du poignet en cours de montée pour mieux activer le biceps.",
+    tip:"8–10 kg × 8–10 reps × 4–5 séries. La supination en cours de montée est la clé — tourne le poignet." },
+  curlDBHammer:   { name:"Curl Haltères Marteau",emoji:"🏋️", eq:["DB"], yt:"https://www.youtube.com/results?search_query=hammer+curl+dumbbell+tutorial",
+    desc:"Curl haltères avec les pouces vers le haut (prise neutre). Cible le brachioradialis et le brachial antérieur pour plus d'épaisseur au bras.",
+    tip:"Coudes fixes, pas de balancier. Ce mouvement complète parfaitement le curl supination." },
+  curlDBConc:     { name:"Curl Haltère Concentré",emoji:"🏋️", eq:["DB"], yt:"https://www.youtube.com/results?search_query=dumbbell+concentration+curl+tutorial",
+    desc:"Assis, coude calé contre la cuisse intérieure, curl haltère en isolation totale. Étire complètement le biceps en bas.",
+    tip:"Le pic de contraction au sommet est l'objectif — tiens 1 seconde en haut." },
+  pressDB:        { name:"Press Haltères Épaules",emoji:"🏋️", eq:["DB"], yt:"https://www.youtube.com/results?search_query=dumbbell+shoulder+press+tutorial",
+    desc:"Assis ou debout, haltères à la hauteur des épaules, paumes vers l'avant. Pousse vers le haut sans verrouiller les coudes.",
+    tip:"Garde le core engagé pour protéger le bas du dos. Descente lente = plus d'activation." },
+  lateralDB:      { name:"Élévations Latérales", emoji:"🏋️", eq:["DB"], yt:"https://www.youtube.com/results?search_query=dumbbell+lateral+raise+tutorial",
+    desc:"Debout, haltères le long du corps. Lève les bras sur les côtés jusqu'à l'horizontale, coudes très légèrement fléchis. Descente contrôlée.",
+    tip:"Pousse avec le coude, pas avec la main. Léger = mieux : 6–8 kg suffisent pour l'isolation." },
+  /* ── TRX LEGS ── */
+  squat303:       { name:"Squat Tempo 3-0-3",   emoji:"🦵", eq:["TRX"],
+    desc:"Face aux sangles. Descends en 3s, pause en bas, remonte en 3s. Pas de rebond. Appui équilibré.",
+    tip:"⚠️ Cheville protégée : poids bien réparti, ni sur les orteils ni sur les talons." },
+  bulgarianSplit: { name:"Bulgarian Split Squat", emoji:"🔥", eq:["TRX"],
+    desc:"Pied arrière dans les sangles, pied avant au sol. Descends jusqu'à ce que le genou arrière frôle le sol. Torse droit.",
+    tip:"Commence par la jambe saine. Pied arrière en sangle = plus de charge sur le quad avant." },
+  hamstringCurl:  { name:"Hamstring Curl TRX",  emoji:"🦿", eq:["TRX"],
+    desc:"Allongé sur le dos, talons dans les sangles. Monte les hanches et plie les genoux pour ramener les talons vers les fessiers.",
+    tip:"Hanches hautes en permanence — si elles descendent, tu perds 50% de l'efficacité." },
+  pistolAssist:   { name:"Pistol Assist TRX",   emoji:"🎯", eq:["TRX"],
+    desc:"Descends sur une jambe en tenant les sangles pour te guider. Essaie de ne pas tirer dessus — elles sont juste un guide.",
+    tip:"⚠️ Sur la jambe blessée, réduis l'amplitude si douleur. Confort > performance." },
+  hipPress:       { name:"Hip Press TRX",       emoji:"🍑", eq:["TRX"],
+    desc:"Allongé sur le dos, talons dans les sangles. Monte et descends les hanches comme un pont, fessiers contractés au sommet.",
+    tip:"Pause de 2 secondes au sommet. C'est là que ça brûle." },
+  lateralLunge:   { name:"Lateral Lunge TRX",   emoji:"↔️", eq:["TRX"],
+    desc:"Debout, sangle en main. Grand pas sur le côté, plie le genou d'appui. Reste droit, reviens.",
+    tip:"⚠️ Du côté blessé, réduis l'amplitude. Équilibre = critère principal." },
+  singleLegHip:   { name:"Single-Leg Hip Press", emoji:"🦵🍑", eq:["TRX"],
+    desc:"Hip press sur une seule jambe dans la sangle. Double la charge sur les ischio-jambiers et le fessier.",
+    tip:"Utilise l'autre jambe au sol si tu perds l'équilibre en début de set." },
+  squat1515:      { name:"Squat Tempo 1.5",     emoji:"⏱🦵", eq:["TRX"],
+    desc:"Descends en bas du squat, remonte à mi-chemin, redescends, puis remonte complètement. C'est 1 rep.",
+    tip:"Descente toujours contrôlée. Ne tombe pas en bas — descends-y." },
+  hamstringCurlSingle:{ name:"Hamstring Curl Unilatéral", emoji:"🦿🎯", eq:["TRX"],
+    desc:"Hamstring curl sur une seule jambe. L'autre est tendue au-dessus du sol. Double la charge et l'instabilité.",
+    tip:"Commence par la jambe forte. Si les hanches s'affaissent, repasse aux deux jambes." },
+  stepUpHold:     { name:"Step-Up Isométrique", emoji:"🪜", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+step+up+isometric+hold+tutorial",
+    desc:"En appui sur une jambe, tiens-toi aux sangles pour l'équilibre. Maintiens genou fléchi à 90°, quad en isométrique.",
+    tip:"⚠️ Sur la cheville blessée, utilise les sangles pour l'équilibre absolu." },
+  /* ── TRX FULL BODY ── */
+  plankToPike:    { name:"Plank to Pike",       emoji:"🔺", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+plank+to+pike+tutorial",
+    desc:"Pieds dans les sangles. Monte les hanches en V, puis reviens en planche. Même chaîne qu'un burpee — zéro impact.",
+    tip:"Expire à la montée du pike. Corps tendu à chaque phase." },
+  powerPull:      { name:"Power Pull TRX",      emoji:"💫", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+power+pull+tutorial",
+    desc:"Une sangle, corps incliné. Tire de façon explosive en faisant pivoter le buste et levant le bras libre vers le plafond.",
+    tip:"L'explosivité vient de la rotation du buste — pas juste du bras." },
+  kneeDrive:      { name:"Knee Drive Contrôlé", emoji:"🏃", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+knee+drive+core+tutorial",
+    desc:"En position inclinée face aux sangles. Ramène lentement un genou vers la poitrine, puis reviens. Alterne.",
+    tip:"Lent et contrôlé — coordination > vitesse ici." },
+  bearCrawlHold:  { name:"Bear Crawl Hold",     emoji:"🐻", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+bear+crawl+hold+tutorial",
+    desc:"À quatre pattes, genoux à 2cm du sol, dos plat. Lève alternativement bras et jambe opposée.",
+    tip:"Imagine un verre d'eau sur ton dos — il ne doit pas tomber." },
+  atomicCombo:    { name:"Atomic Push-Up + Pike",emoji:"💥🔺", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+atomic+push+up+pike+combo+tutorial",
+    desc:"Enchaîne un Atomic Push-Up (pompe + genoux) puis immédiatement un Pike (hanches en V). C'est 1 rep.",
+    tip:"Si tu perds le gainage, décompose les deux mouvements avant de les enchaîner." },
+  mountainClimberSlow:{ name:"Mountain Climber Lent", emoji:"⛰️", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+mountain+climber+slow+tutorial",
+    desc:"Planche pieds dans les sangles. Ramène un genou en 3 secondes, tiens 1 seconde, reviens lentement. Alterne.",
+    tip:"Version lente = 3× plus difficile pour les abdos que la version rapide." },
+  inchworm:       { name:"Inchworm TRX",        emoji:"🐛", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+inchworm+tutorial",
+    desc:"Pieds dans les sangles. Marche sur les mains vers l'avant le plus loin possible, jambes tendues, puis reviens.",
+    tip:"L'amplitude maximale est l'objectif. Jambes tendues tout le long." },
+  plankJackSlow:  { name:"Plank Jack Lent",     emoji:"⭐", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+plank+jack+tutorial",
+    desc:"Planche pieds dans les sangles. Écarte lentement les deux pieds en V, puis ramène. Contrôle absolu.",
+    tip:"⚠️ Pas d'impact — les pieds ne quittent pas les sangles. Lent = efficace." },
+  trxAbRollout:   { name:"Ab Rollout TRX",      emoji:"🎳", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+ab+rollout+tutorial",
+    desc:"Face aux sangles, bras tendus. Laisse le corps tomber vers l'avant bras droits — rollout sur sangles.",
+    tip:"Reviens toujours avec les abdos, jamais avec le bas du dos." },
+  trxChoppers:    { name:"TRX Choppers",        emoji:"🪓", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+chopper+rotation+tutorial",
+    desc:"En position latérale par rapport aux sangles. Tire avec les deux mains de haut en bas en diagonal. Rotation du buste.",
+    tip:"Les pieds ne bougent pas — toute la rotation vient du tronc." },
+  /* ── TRX LEGS (yt links) ── */
+  squat303:       { name:"Squat Tempo 3-0-3",   emoji:"🦵", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+squat+slow+tempo+tutorial",
+    desc:"Face aux sangles. Descends en 3s, pause en bas, remonte en 3s. Pas de rebond. Appui équilibré.",
+    tip:"⚠️ Cheville protégée : poids bien réparti, ni sur les orteils ni sur les talons." },
+  bulgarianSplit: { name:"Bulgarian Split Squat", emoji:"🔥", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+Bulgarian+split+squat+tutorial",
+    desc:"Pied arrière dans les sangles, pied avant au sol. Descends jusqu'à ce que le genou arrière frôle le sol. Torse droit.",
+    tip:"Commence par la jambe saine. Pied arrière en sangle = plus de charge sur le quad avant." },
+  hamstringCurl:  { name:"Hamstring Curl TRX",  emoji:"🦿", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+hamstring+curl+tutorial",
+    desc:"Allongé sur le dos, talons dans les sangles. Monte les hanches et plie les genoux pour ramener les talons vers les fessiers.",
+    tip:"Hanches hautes en permanence — si elles descendent, tu perds 50% de l'efficacité." },
+  pistolAssist:   { name:"Pistol Assist TRX",   emoji:"🎯", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+assisted+pistol+squat+tutorial",
+    desc:"Descends sur une jambe en tenant les sangles pour te guider. Essaie de ne pas tirer dessus — elles sont juste un guide.",
+    tip:"⚠️ Sur la jambe blessée, réduis l'amplitude si douleur. Confort > performance." },
+  hipPress:       { name:"Hip Press TRX",       emoji:"🍑", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+hip+press+glute+bridge+tutorial",
+    desc:"Allongé sur le dos, talons dans les sangles. Monte et descends les hanches comme un pont, fessiers contractés au sommet.",
+    tip:"Pause de 2 secondes au sommet. C'est là que ça brûle." },
+  lateralLunge:   { name:"Lateral Lunge TRX",   emoji:"↔️", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+lateral+lunge+tutorial",
+    desc:"Debout, sangle en main. Grand pas sur le côté, plie le genou d'appui. Reste droit, reviens.",
+    tip:"⚠️ Du côté blessé, réduis l'amplitude. Équilibre = critère principal." },
+  singleLegHip:   { name:"Single-Leg Hip Press", emoji:"🦵🍑", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+single+leg+hip+press+tutorial",
+    desc:"Hip press sur une seule jambe dans la sangle. Double la charge sur les ischio-jambiers et le fessier.",
+    tip:"Utilise l'autre jambe au sol si tu perds l'équilibre en début de set." },
+  squat1515:      { name:"Squat Tempo 1.5",     emoji:"⏱🦵", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+squat+1.5+tempo+tutorial",
+    desc:"Descends en bas du squat, remonte à mi-chemin, redescends, puis remonte complètement. C'est 1 rep.",
+    tip:"Descente toujours contrôlée. Ne tombe pas en bas — descends-y." },
+  hamstringCurlSingle:{ name:"Hamstring Curl Unilatéral", emoji:"🦿🎯", eq:["TRX"], yt:"https://www.youtube.com/results?search_query=TRX+single+leg+hamstring+curl+tutorial",
+    desc:"Hamstring curl sur une seule jambe. L'autre est tendue au-dessus du sol. Double la charge et l'instabilité.",
+    tip:"Commence par la jambe forte. Si les hanches s'affaissent, repasse aux deux jambes." },
+};
+
+// ═══════════════════════════════════════════════════
+//  PROGRAMME 8 SEMAINES
+// ═══════════════════════════════════════════════════
+const program = {
+  phases:[
+    { weeks:[1,2,3,4], name:"Phase 1 — Fondation",       desc:"Maîtrise technique, 4 séries × 10–12 reps" },
+    { weeks:[5,6,7,8], name:"Phase 2 — Intensification", desc:"Volume & difficulté progressifs, jusqu'à 5 séries" },
+  ],
+  weeks:[
+    // ══════════════════════════════════════════════════
+    // PHASE 1 — FONDATION (S1–S4)
+    // Structure : A=Push+Pull léger+Legs léger
+    //             B=Pull+Push léger+Legs léger
+    //             C=Legs+Push léger+Pull léger
+    //             D=Full Body équilibré 2+2+2
+    // ══════════════════════════════════════════════════
+
+    // ── S1 ──
+    { week:1, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Dominante Push · Pull & Legs léger", day:"Lundi", time:44, exercises:[
+        {ex:EXS.chestPress,     sets:4, reps:"10"},   // PUSH
+        {ex:EXS.atomicPushup,   sets:4, reps:"8"},    // PUSH
+        {ex:EXS.tricepsPress,   sets:4, reps:"10"},   // PUSH
+        {ex:EXS.invertedRow,    sets:3, reps:"10"},   // PULL léger
+        {ex:EXS.facePull,       sets:3, reps:"12"},   // PULL léger
+        {ex:EXS.hipPress,       sets:3, reps:"15"},   // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Dominante Pull · Push & Legs léger", day:"Mardi", time:44, exercises:[
+        {ex:EXS.pullupPro,      sets:4, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:4, reps:"12"},   // PULL
+        {ex:EXS.oneArmRow,      sets:4, reps:"10/côté"}, // PULL
+        {ex:EXS.chestPress,     sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.squat303,       sets:3, reps:"10"},   // LEGS léger
+        {ex:EXS.hamstringCurl,  sets:3, reps:"12"},   // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Dominante Legs · Push & Pull léger", day:"Jeudi", time:44, exercises:[
+        {ex:EXS.squat303,       sets:4, reps:"10"},   // LEGS
+        {ex:EXS.bulgarianSplit, sets:4, reps:"8/jambe"}, // LEGS
+        {ex:EXS.hipPress,       sets:4, reps:"15"},   // LEGS
+        {ex:EXS.pike,           sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.bodySaw,        sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.facePull,       sets:3, reps:"12"},   // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Full Body Équilibré", day:"Vendredi", time:46, exercises:[
+        {ex:EXS.atomicCombo,    sets:4, reps:"8"},    // PUSH
+        {ex:EXS.powerPull,      sets:4, reps:"8/côté"}, // PULL
+        {ex:EXS.curlDB,         sets:3, reps:"10"},   // PULL
+        {ex:EXS.plankToPike,    sets:3, reps:"10"},   // PUSH/CORE
+        {ex:EXS.hamstringCurl,  sets:3, reps:"12"},   // LEGS
+        {ex:EXS.lateralLunge,   sets:3, reps:"8/côté"}, // LEGS
+      ]},
+    ]},
+
+    // ── S2 ──
+    { week:2, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Dominante Push · Pull & Legs léger", day:"Lundi", time:45, exercises:[
+        {ex:EXS.declinePushup,  sets:4, reps:"10"},   // PUSH
+        {ex:EXS.pikesPushup,    sets:4, reps:"8"},    // PUSH
+        {ex:EXS.tricepsPress,   sets:4, reps:"12"},   // PUSH
+        {ex:EXS.lowRow,         sets:3, reps:"12"},   // PULL léger
+        {ex:EXS.ytw,            sets:3, reps:"10"},   // PULL léger
+        {ex:EXS.squat303,       sets:3, reps:"10"},   // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Dominante Pull · Push & Legs léger", day:"Mardi", time:45, exercises:[
+        {ex:EXS.pullupSup,      sets:4, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:4, reps:"12"},   // PULL
+        {ex:EXS.invertedRow,    sets:4, reps:"12"},   // PULL
+        {ex:EXS.bodySaw,        sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.bulgarianSplit, sets:3, reps:"8/jambe"}, // LEGS léger
+        {ex:EXS.hipPress,       sets:3, reps:"15"},   // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Dominante Legs · Push & Pull léger", day:"Jeudi", time:45, exercises:[
+        {ex:EXS.squat303,       sets:4, reps:"12"},   // LEGS
+        {ex:EXS.hamstringCurl,  sets:4, reps:"12"},   // LEGS
+        {ex:EXS.lateralLunge,   sets:4, reps:"10/côté"}, // LEGS
+        {ex:EXS.chestPress,     sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.plankRotation,  sets:3, reps:"8/côté"}, // PUSH léger
+        {ex:EXS.facePull,       sets:3, reps:"12"},   // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Full Body Équilibré", day:"Vendredi", time:46, exercises:[
+        {ex:EXS.atomicPushup,   sets:4, reps:"10"},   // PUSH
+        {ex:EXS.pullToRotation, sets:4, reps:"10/côté"}, // PULL
+        {ex:EXS.curlDBHammer,   sets:3, reps:"10"},   // PULL
+        {ex:EXS.fallout,        sets:3, reps:"10"},   // PUSH/CORE
+        {ex:EXS.pistolAssist,   sets:3, reps:"6/jambe"}, // LEGS
+        {ex:EXS.trxChoppers,    sets:3, reps:"10/côté"}, // FULL
+      ]},
+    ]},
+
+    // ── S3 ──
+    { week:3, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Dominante Push · Pull & Legs léger", day:"Lundi", time:47, exercises:[
+        {ex:EXS.arrowheadPushup,sets:4, reps:"10"},   // PUSH
+        {ex:EXS.chestPress,     sets:4, reps:"12"},   // PUSH
+        {ex:EXS.sidePlank,      sets:4, reps:"20 sec/côté"}, // PUSH/CORE
+        {ex:EXS.highRow,        sets:3, reps:"12"},   // PULL léger
+        {ex:EXS.facePull,       sets:3, reps:"12"},   // PULL léger
+        {ex:EXS.hamstringCurlSingle, sets:3, reps:"8/jambe"}, // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Dominante Pull · Push & Legs léger", day:"Mardi", time:47, exercises:[
+        {ex:EXS.pullupWide,     sets:4, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:5, reps:"12"},   // PULL
+        {ex:EXS.renegadeRow,    sets:4, reps:"8/côté"}, // PULL
+        {ex:EXS.declinePushup,  sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.squat303,       sets:3, reps:"12"},   // LEGS léger
+        {ex:EXS.singleLegHip,   sets:3, reps:"10/jambe"}, // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Dominante Legs · Push & Pull léger", day:"Jeudi", time:47, exercises:[
+        {ex:EXS.bulgarianSplit, sets:4, reps:"10/jambe"}, // LEGS
+        {ex:EXS.hamstringCurlSingle, sets:4, reps:"8/jambe"}, // LEGS
+        {ex:EXS.pistolAssist,   sets:4, reps:"8/jambe"}, // LEGS
+        {ex:EXS.atomicPushup,   sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.bodySaw,        sets:3, reps:"12"},   // PUSH léger
+        {ex:EXS.oneArmRow,      sets:3, reps:"10/côté"}, // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Full Body Force & Coordination", day:"Vendredi", time:48, exercises:[
+        {ex:EXS.atomicCombo,    sets:4, reps:"8"},    // PUSH
+        {ex:EXS.powerPull,      sets:4, reps:"10/côté"}, // PULL
+        {ex:EXS.pressDB,        sets:3, reps:"10"},   // PUSH
+        {ex:EXS.curlDB,         sets:3, reps:"10"},   // PULL
+        {ex:EXS.squat1515,      sets:3, reps:"8"},    // LEGS
+        {ex:EXS.trxAbRollout,   sets:3, reps:"10"},   // CORE
+      ]},
+    ]},
+
+    // ── S4 décharge ──
+    { week:4, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Décharge — Push dominant", day:"Lundi", time:36, exercises:[
+        {ex:EXS.chestPress,     sets:3, reps:"10"},   // PUSH
+        {ex:EXS.pike,           sets:3, reps:"10"},   // PUSH
+        {ex:EXS.tricepsPress,   sets:3, reps:"10"},   // PUSH
+        {ex:EXS.invertedRow,    sets:3, reps:"10"},   // PULL léger
+        {ex:EXS.facePull,       sets:3, reps:"10"},   // PULL léger
+        {ex:EXS.hipPress,       sets:3, reps:"12"},   // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Décharge — Pull dominant", day:"Mardi", time:36, exercises:[
+        {ex:EXS.pullupPro,      sets:3, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:3, reps:"12"},   // PULL
+        {ex:EXS.lowRow,         sets:3, reps:"12"},   // PULL
+        {ex:EXS.bodySaw,        sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.squat303,       sets:3, reps:"10"},   // LEGS léger
+        {ex:EXS.hamstringCurl,  sets:3, reps:"12"},   // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Décharge — Legs dominant", day:"Jeudi", time:36, exercises:[
+        {ex:EXS.squat303,       sets:3, reps:"10"},   // LEGS
+        {ex:EXS.hamstringCurl,  sets:3, reps:"12"},   // LEGS
+        {ex:EXS.lateralLunge,   sets:3, reps:"8/côté"}, // LEGS
+        {ex:EXS.fallout,        sets:3, reps:"8"},    // PUSH léger
+        {ex:EXS.plankRotation,  sets:3, reps:"8/côté"}, // PUSH léger
+        {ex:EXS.ytw,            sets:3, reps:"8"},    // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Décharge — Mobilité active", day:"Vendredi", time:36, exercises:[
+        {ex:EXS.plankToPike,    sets:3, reps:"10"},   // PUSH/CORE
+        {ex:EXS.powerPull,      sets:3, reps:"8/côté"}, // PULL
+        {ex:EXS.curlDB,         sets:3, reps:"10"},   // PULL
+        {ex:EXS.kneeDrive,      sets:3, reps:"10/côté"}, // CORE
+        {ex:EXS.hipPress,       sets:3, reps:"12"},   // LEGS
+        {ex:EXS.bearCrawlHold,  sets:3, reps:"20 sec"}, // FULL
+      ]},
+    ]},
+
+    // ══════════════════════════════════════════════════
+    // PHASE 2 — INTENSIFICATION (S5–S8)
+    // ══════════════════════════════════════════════════
+
+    // ── S5 ──
+    { week:5, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Intensification · Push dominant", day:"Lundi", time:50, exercises:[
+        {ex:EXS.declinePushup,  sets:4, reps:"12"},   // PUSH
+        {ex:EXS.arrowheadPushup,sets:4, reps:"10"},   // PUSH
+        {ex:EXS.bodySaw,        sets:4, reps:"14"},   // PUSH/CORE
+        {ex:EXS.renegadeRow,    sets:3, reps:"10/côté"}, // PULL léger
+        {ex:EXS.highRow,        sets:3, reps:"12"},   // PULL léger
+        {ex:EXS.squat1515,      sets:3, reps:"8"},    // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Intensification · Pull dominant", day:"Mardi", time:50, exercises:[
+        {ex:EXS.pullupWide,     sets:5, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:5, reps:"12"},   // PULL
+        {ex:EXS.oneArmRow,      sets:4, reps:"12/côté"}, // PULL
+        {ex:EXS.chestPress,     sets:3, reps:"12"},   // PUSH léger
+        {ex:EXS.bulgarianSplit, sets:3, reps:"10/jambe"}, // LEGS léger
+        {ex:EXS.singleLegHip,   sets:3, reps:"12/jambe"}, // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Intensification · Legs dominant", day:"Jeudi", time:50, exercises:[
+        {ex:EXS.squat1515,      sets:4, reps:"8"},    // LEGS
+        {ex:EXS.hamstringCurlSingle, sets:4, reps:"10/jambe"}, // LEGS
+        {ex:EXS.pistolAssist,   sets:4, reps:"10/jambe"}, // LEGS
+        {ex:EXS.atomicPushup,   sets:3, reps:"12"},   // PUSH léger
+        {ex:EXS.plankRotation,  sets:3, reps:"10/côté"}, // PUSH léger
+        {ex:EXS.facePull,       sets:3, reps:"15"},   // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Full Body Puissance", day:"Vendredi", time:52, exercises:[
+        {ex:EXS.atomicCombo,    sets:4, reps:"10"},   // PUSH
+        {ex:EXS.powerPull,      sets:4, reps:"12/côté"}, // PULL
+        {ex:EXS.pressDB,        sets:4, reps:"12"},   // PUSH
+        {ex:EXS.curlDB,         sets:4, reps:"10"},   // PULL
+        {ex:EXS.lateralLunge,   sets:3, reps:"12/côté"}, // LEGS
+        {ex:EXS.mountainClimberSlow, sets:3, reps:"10/côté"}, // CORE
+      ]},
+    ]},
+
+    // ── S6 ──
+    { week:6, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Volume Max · Push dominant", day:"Lundi", time:52, exercises:[
+        {ex:EXS.chestPress,     sets:5, reps:"12"},   // PUSH
+        {ex:EXS.declinePushup,  sets:4, reps:"12"},   // PUSH
+        {ex:EXS.sidePlank,      sets:4, reps:"25 sec/côté"}, // PUSH/CORE
+        {ex:EXS.supineRow,      sets:3, reps:"15"},   // PULL léger
+        {ex:EXS.ytw,            sets:3, reps:"12"},   // PULL léger
+        {ex:EXS.hamstringCurlSingle, sets:3, reps:"10/jambe"}, // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Volume Max · Pull dominant", day:"Mardi", time:52, exercises:[
+        {ex:EXS.pullupNarrow,   sets:5, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:5, reps:"12"},   // PULL
+        {ex:EXS.curlDBConc,     sets:4, reps:"10/bras"}, // PULL
+        {ex:EXS.arrowheadPushup,sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.squat1515,      sets:3, reps:"10"},   // LEGS léger
+        {ex:EXS.singleLegHip,   sets:3, reps:"12/jambe"}, // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Volume Max · Legs dominant", day:"Jeudi", time:52, exercises:[
+        {ex:EXS.bulgarianSplit, sets:5, reps:"12/jambe"}, // LEGS
+        {ex:EXS.hamstringCurlSingle, sets:4, reps:"10/jambe"}, // LEGS
+        {ex:EXS.pistolAssist,   sets:4, reps:"10/jambe"}, // LEGS
+        {ex:EXS.pikesPushup,    sets:3, reps:"10"},   // PUSH léger
+        {ex:EXS.fallout,        sets:3, reps:"12"},   // PUSH/CORE
+        {ex:EXS.pullToRotation, sets:3, reps:"12/côté"}, // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Circuit Endurance Musculaire", day:"Vendredi", time:54, exercises:[
+        {ex:EXS.atomicPushup,   sets:4, reps:"12"},   // PUSH
+        {ex:EXS.powerPull,      sets:4, reps:"12/côté"}, // PULL
+        {ex:EXS.lateralDB,      sets:4, reps:"15"},   // PUSH
+        {ex:EXS.renegadeRow,    sets:4, reps:"10/côté"}, // PULL
+        {ex:EXS.squat303,       sets:3, reps:"12"},   // LEGS
+        {ex:EXS.trxChoppers,    sets:3, reps:"12/côté"}, // FULL
+      ]},
+    ]},
+
+    // ── S7 peak ──
+    { week:7, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Peak · Push dominant", day:"Lundi", time:54, exercises:[
+        {ex:EXS.arrowheadPushup,sets:4, reps:"12"},   // PUSH
+        {ex:EXS.pikesPushup,    sets:4, reps:"12"},   // PUSH
+        {ex:EXS.pushupHold,     sets:4, reps:"20 sec"}, // PUSH/CORE
+        {ex:EXS.oneArmRow,      sets:4, reps:"12/côté"}, // PULL léger
+        {ex:EXS.facePull,       sets:3, reps:"15"},   // PULL léger
+        {ex:EXS.stepUpHold,     sets:3, reps:"25 sec/jambe"}, // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Peak · Pull dominant", day:"Mardi", time:54, exercises:[
+        {ex:EXS.pullupSup,      sets:5, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:5, reps:"12"},   // PULL
+        {ex:EXS.pullupWide,     sets:4, reps:"max"},  // PULL
+        {ex:EXS.declinePushup,  sets:3, reps:"12"},   // PUSH léger
+        {ex:EXS.squat1515,      sets:3, reps:"10"},   // LEGS léger
+        {ex:EXS.hamstringCurlSingle, sets:3, reps:"12/jambe"}, // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Peak · Legs dominant", day:"Jeudi", time:54, exercises:[
+        {ex:EXS.squat1515,      sets:5, reps:"10"},   // LEGS
+        {ex:EXS.bulgarianSplit, sets:5, reps:"12/jambe"}, // LEGS
+        {ex:EXS.singleLegHip,   sets:4, reps:"15/jambe"}, // LEGS
+        {ex:EXS.chestPress,     sets:3, reps:"15"},   // PUSH léger
+        {ex:EXS.bodySaw,        sets:3, reps:"14"},   // PUSH/CORE
+        {ex:EXS.highRow,        sets:3, reps:"15"},   // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Peak — Circuit Complet", day:"Vendredi", time:56, exercises:[
+        {ex:EXS.atomicCombo,    sets:4, reps:"12"},   // PUSH
+        {ex:EXS.powerPull,      sets:4, reps:"12/côté"}, // PULL
+        {ex:EXS.pressDB,        sets:4, reps:"12"},   // PUSH
+        {ex:EXS.curlDB,         sets:4, reps:"10"},   // PULL
+        {ex:EXS.pistolAssist,   sets:3, reps:"12/jambe"}, // LEGS
+        {ex:EXS.trxAbRollout,   sets:3, reps:"14"},   // CORE
+      ]},
+    ]},
+
+    // ── S8 bilan ──
+    { week:8, sessions:[
+      { type:"push", name:"SÉANCE A", subtitle:"Bilan Final · Push dominant", day:"Lundi", time:50, exercises:[
+        {ex:EXS.chestPress,     sets:4, reps:"15"},   // PUSH
+        {ex:EXS.arrowheadPushup,sets:4, reps:"12"},   // PUSH
+        {ex:EXS.fallout,        sets:4, reps:"12"},   // PUSH/CORE
+        {ex:EXS.invertedRow,    sets:4, reps:"15"},   // PULL léger
+        {ex:EXS.ytw,            sets:3, reps:"12"},   // PULL léger
+        {ex:EXS.hamstringCurl,  sets:3, reps:"15"},   // LEGS léger
+      ]},
+      { type:"pull", name:"SÉANCE B", subtitle:"Bilan Final · Pull dominant", day:"Mardi", time:50, exercises:[
+        {ex:EXS.pullupPro,      sets:4, reps:"max"},  // PULL
+        {ex:EXS.pullupSup,      sets:4, reps:"max"},  // PULL
+        {ex:EXS.curlBZ,         sets:5, reps:"12"},   // PULL
+        {ex:EXS.pikesPushup,    sets:3, reps:"12"},   // PUSH léger
+        {ex:EXS.squat303,       sets:3, reps:"15"},   // LEGS léger
+        {ex:EXS.singleLegHip,   sets:3, reps:"15/jambe"}, // LEGS léger
+      ]},
+      { type:"legs", name:"SÉANCE C", subtitle:"Bilan Final · Legs dominant", day:"Jeudi", time:50, exercises:[
+        {ex:EXS.bulgarianSplit, sets:4, reps:"12/jambe"}, // LEGS
+        {ex:EXS.hamstringCurlSingle, sets:4, reps:"12/jambe"}, // LEGS
+        {ex:EXS.pistolAssist,   sets:4, reps:"12/jambe"}, // LEGS
+        {ex:EXS.chestPress,     sets:3, reps:"15"},   // PUSH léger
+        {ex:EXS.plankRotation,  sets:3, reps:"12/côté"}, // PUSH/CORE
+        {ex:EXS.facePull,       sets:3, reps:"15"},   // PULL léger
+      ]},
+      { type:"full", name:"SÉANCE D", subtitle:"Bilan Final — Tout en un", day:"Vendredi", time:52, exercises:[
+        {ex:EXS.atomicCombo,    sets:4, reps:"12"},   // PUSH
+        {ex:EXS.powerPull,      sets:4, reps:"12/côté"}, // PULL
+        {ex:EXS.curlDBConc,     sets:4, reps:"10/bras"}, // PULL
+        {ex:EXS.pressDB,        sets:3, reps:"12"},   // PUSH
+        {ex:EXS.squat1515,      sets:3, reps:"10"},   // LEGS
+        {ex:EXS.trxChoppers,    sets:3, reps:"12/côté"}, // FULL
+      ]},
+    ]},
+  ]
+};
+
+// ═══════════════════════════════════════════════════
+//  BONUS SESSION — pool full body, cheville protégée
+// ═══════════════════════════════════════════════════
+const BONUS_POOL = [
+  // TRX push/core
+  { ex:EXS.atomicPushup,    sets:3, reps:"10" },
+  { ex:EXS.pike,            sets:3, reps:"12" },
+  { ex:EXS.bodySaw,         sets:3, reps:"12" },
+  { ex:EXS.chestPress,      sets:3, reps:"12" },
+  { ex:EXS.tricepsPress,    sets:3, reps:"12" },
+  { ex:EXS.plankRotation,   sets:3, reps:"10/côté" },
+  { ex:EXS.fallout,         sets:3, reps:"10" },
+  { ex:EXS.trxAbRollout,    sets:3, reps:"10" },
+  { ex:EXS.sidePlank,       sets:3, reps:"20 sec/côté" },
+  { ex:EXS.pikesPushup,     sets:3, reps:"8" },
+  { ex:EXS.atomicCombo,     sets:3, reps:"8" },
+  { ex:EXS.mountainClimberSlow, sets:3, reps:"10/côté" },
+  { ex:EXS.plankJackSlow,   sets:3, reps:"12" },
+  { ex:EXS.inchworm,        sets:3, reps:"6" },
+  { ex:EXS.trxChoppers,     sets:3, reps:"10/côté" },
+  // TRX pull
+  { ex:EXS.invertedRow,     sets:3, reps:"12" },
+  { ex:EXS.facePull,        sets:3, reps:"12" },
+  { ex:EXS.powerPull,       sets:3, reps:"10/côté" },
+  { ex:EXS.oneArmRow,       sets:3, reps:"10/côté" },
+  { ex:EXS.highRow,         sets:3, reps:"12" },
+  { ex:EXS.lowRow,          sets:3, reps:"12" },
+  { ex:EXS.ytw,             sets:3, reps:"10" },
+  { ex:EXS.kneeDrive,       sets:3, reps:"12/côté" },
+  { ex:EXS.bearCrawlHold,   sets:3, reps:"25 sec" },
+  // Tractions
+  { ex:EXS.pullupPro,       sets:3, reps:"max" },
+  { ex:EXS.pullupSup,       sets:3, reps:"max" },
+  // Haltères
+  { ex:EXS.curlDB,          sets:3, reps:"10" },
+  { ex:EXS.curlDBHammer,    sets:3, reps:"10" },
+  { ex:EXS.lateralDB,       sets:3, reps:"12" },
+  { ex:EXS.pressDB,         sets:3, reps:"10" },
+  // Barre Z
+  { ex:EXS.curlBZ,          sets:3, reps:"12" },
+  // Legs (sans impact, cheville protégée)
+  { ex:EXS.hamstringCurl,   sets:3, reps:"12" },
+  { ex:EXS.hipPress,        sets:3, reps:"15" },
+  { ex:EXS.squat303,        sets:3, reps:"10" },
+  { ex:EXS.bulgarianSplit,  sets:3, reps:"8/jambe" },
+  { ex:EXS.singleLegHip,    sets:3, reps:"12/jambe" },
+];
+
+let bonusSession = null;
+
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-.5); }
+
+function generateBonus(){
+  const picks = shuffle(BONUS_POOL).slice(0, 6);
+  bonusSession = {
+    type:"full", name:"BONUS", subtitle:"Full Body Aléatoire",
+    day:"Séance surprise", time:35,
+    exercises: picks,
+    isBonus: true,
+  };
+}
+
+function openBonus(){
+  generateBonus();
+  const s = bonusSession;
+
+  document.getElementById('ovTitle').textContent = '🎲 BONUS';
+  document.getElementById('ovTitle').style.color = 'var(--accent)';
+  document.getElementById('ovKicker').textContent = 'Full Body · 6 exercices aléatoires · ~35 min';
+  document.getElementById('ovKicker').style.color = 'var(--accent)';
+  document.getElementById('ovEx').textContent = 6;
+  document.getElementById('ovSets').textContent = 3;
+  document.getElementById('ovTime').textContent = 35;
+
+  const eqKeys = [...new Set(s.exercises.flatMap(e => e.ex.eq))];
+  document.getElementById('ovEquipment').innerHTML = eqKeys.map(k=>eqBadge(k)).join('');
+
+  const list = document.getElementById('ovExList');
+  list.innerHTML = '';
+
+  // Shuffle button
+  const shuffleBtn = document.createElement('div');
+  shuffleBtn.style.cssText = 'margin:0 0 8px;background:rgba(232,200,64,.07);border:1px solid rgba(232,200,64,.25);border-radius:13px;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-size:13px;color:var(--accent)';
+  shuffleBtn.innerHTML = '🔀 Générer une autre sélection';
+  shuffleBtn.onclick = openBonus;
+  list.appendChild(shuffleBtn);
+
+  s.exercises.forEach((e, i) => {
+    const eqHtml = e.ex.eq.map(k=>eqBadge(k)).join('');
+    const div = document.createElement('div');
+    div.className = 'ex-item';
+    div.onclick = () => showPreview(e);
+    div.innerHTML = `
+      <div class="ex-n">${String(i+1).padStart(2,'0')}</div>
+      <div class="ex-inf">
+        <div class="en">${e.ex.name}</div>
+        <div class="ed">${e.sets} séries × ${e.reps}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:3px">${eqHtml}</div>
+      </div>
+      <div class="ex-ico">${e.ex.emoji}</div>`;
+    list.appendChild(div);
+  });
+
+  showScreen('overviewScreen');
+}
+
+let S = { week:0, sIdx:0, exIdx:0, setNum:1, restCb:null, restInt:null, t0:null }
+
+function getCompletedKey(week, sIdx){ return `trx_done_w${week}_s${sIdx}`; }
+function markDone(week, sIdx){ localStorage.setItem(getCompletedKey(week,sIdx),'1'); }
+function isDone(week, sIdx){ return localStorage.getItem(getCompletedKey(week,sIdx))==='1'; };
+
+function getColor(t){ return {push:'#e84040',pull:'#4080e8',legs:'#e8c840',full:'#a040e8'}[t] }
+
+function getEquipmentForSession(session){
+  const keys = new Set();
+  session.exercises.forEach(e => e.ex.eq.forEach(k => keys.add(k)));
+  return [...keys];
+}
+
+function eqBadge(key){
+  const e = EQ[key];
+  return `<span class="eq-badge eq-${e.label.replace('è','e').replace('é','e')}">${e.icon} ${e.label}</span>`;
+}
+
+function eqBadgeByLabel(label){
+  // find key from label
+  const k = Object.keys(EQ).find(k => EQ[k].label === label);
+  return k ? eqBadge(k) : '';
+}
+
+function getPhase(wi){ return wi < 4 ? program.phases[0] : program.phases[1]; }
+
+// ═══════════════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════════════
+function init(){
+  const saved = parseInt(localStorage.getItem('trx_week')||'0');
+  S.week = Math.min(saved, 7);
+  renderHome();
+}
+
+function renderHome(){
+  // tabs
+  const tabs = document.getElementById('weekTabs');
+  tabs.innerHTML='';
+  for(let i=0;i<8;i++){
+    const t=document.createElement('div');
+    t.className='week-tab'+(i===S.week?' active':'');
+    t.innerHTML=`<span style="font-size:16px">S${i+1}</span><span class="wtab-label">${i<4?'Phase 1':'Phase 2'}</span>`;
+    t.onclick=()=>{ S.week=i; localStorage.setItem('trx_week',i); renderHome(); };
+    tabs.appendChild(t);
+    if(i===S.week) setTimeout(()=>t.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}),50);
+  }
+  // phase
+  const ph=getPhase(S.week);
+  document.getElementById('phaseName').textContent=ph.name;
+  document.getElementById('phaseDesc').textContent=ph.desc;
+  // sessions
+  const wk=program.weeks[S.week];
+  const list=document.getElementById('sessionsList');
+  list.innerHTML='';
+  wk.sessions.forEach((s,i)=>{
+    const done = isDone(S.week, i);
+    const eqKeys = getEquipmentForSession(s);
+    const eqHtml = eqKeys.map(k=>eqBadge(k)).join('');
+    const chips = s.exercises.slice(0,4).map(e=>`<span class="chip">${e.ex.name.split(' ').slice(0,2).join(' ')}</span>`).join('')
+      +(s.exercises.length>4?`<span class="chip">+${s.exercises.length-4}</span>`:'');
+    const div=document.createElement('div');
+    div.className=`scard ${s.type}${done?' done-session':''}`;
+    div.onclick=()=>openOverview(i);
+    div.innerHTML=`
+      <div class="scard-bar"></div>
+      <div class="scard-body">
+        <div class="scard-top">
+          <div>
+            <div class="scard-num">Séance ${i+1} · ${s.day} · Semaine ${S.week+1}</div>
+            <div class="scard-name">${s.name}</div>
+            <div class="scard-sub">${s.subtitle}</div>
+          </div>
+          <div class="scard-play"><svg viewBox="0 0 24 24" fill="${getColor(s.type)}" width="16" height="16"><polygon points="6,4 20,12 6,20"/></svg></div>
+        </div>
+        <div class="scard-stats">
+          <div class="scard-stat"><div class="sv">${s.exercises.length}</div><div class="sl">Exercices</div></div>
+          <div class="scard-stat"><div class="sv">${s.exercises[0].sets}</div><div class="sl">Séries</div></div>
+          <div class="scard-stat"><div class="sv">~${s.time}</div><div class="sl">Min</div></div>
+        </div>
+        <div class="scard-equipment">${eqHtml}</div>
+        ${done?'<div class="scard-done-badge">✅ Séance complétée</div>':''}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  OVERVIEW
+// ═══════════════════════════════════════════════════
+function openOverview(sIdx){
+  S.sIdx=sIdx;
+  const s=program.weeks[S.week].sessions[sIdx];
+  const color=getColor(s.type);
+  document.getElementById('ovTitle').textContent=s.name;
+  document.getElementById('ovTitle').style.color=color;
+  document.getElementById('ovKicker').textContent=`S${S.week+1} · ${s.day} · ${s.subtitle}`;
+  document.getElementById('ovKicker').style.color=color;
+  document.getElementById('ovEx').textContent=s.exercises.length;
+  document.getElementById('ovSets').textContent=s.exercises[0].sets;
+  document.getElementById('ovTime').textContent=s.time;
+
+  // Equipment for this session
+  const eqKeys = getEquipmentForSession(s);
+  document.getElementById('ovEquipment').innerHTML = eqKeys.map(k=>eqBadge(k)).join('');
+
+  const list=document.getElementById('ovExList');
+  list.innerHTML='';
+  s.exercises.forEach((e,i)=>{
+    const eqHtml = e.ex.eq.map(k=>eqBadge(k)).join('');
+    const div=document.createElement('div');
+    div.className='ex-item';
+    div.onclick=()=>showPreview(e);
+    div.innerHTML=`
+      <div class="ex-n">${String(i+1).padStart(2,'0')}</div>
+      <div class="ex-inf">
+        <div class="en">${e.ex.name}</div>
+        <div class="ed">${e.sets} séries × ${e.reps}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${eqHtml}</div>
+      </div>
+      <div class="ex-ico">${e.ex.emoji}</div>`;
+    list.appendChild(div);
+  });
+  showScreen('overviewScreen');
+}
+
+function showPreview(e){
+  const eqHtml = e.ex.eq.map(k=>eqBadge(k)).join('');
+  const m=document.createElement('div');
+  m.className='modal-overlay';
+  m.innerHTML=`
+    <div style="font-size:60px;margin-bottom:12px">${e.ex.emoji}</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:#f0f0f0;margin-bottom:6px;text-align:center">${e.ex.name}</div>
+    <div style="font-size:12px;color:#6a6a80;margin-bottom:12px">${e.sets} séries × ${e.reps}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:18px">${eqHtml}</div>
+    <div style="background:#13131a;border:1px solid #2a2a38;border-radius:15px;padding:15px;width:100%;margin-bottom:12px">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6a6a80;margin-bottom:7px">Description</div>
+      <div style="font-size:13px;color:#f0f0f0;line-height:1.65">${e.ex.desc}</div>
+    </div>
+    <div style="background:rgba(232,200,64,.07);border:1px solid rgba(232,200,64,.2);border-radius:12px;padding:12px;width:100%;margin-bottom:16px">
+      <div style="font-size:12px;color:#e8c840;line-height:1.5">💡 ${e.ex.tip}</div>
+    </div>
+    ${e.ex.yt ? `<a href="${e.ex.yt}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#cc0000;border-radius:13px;padding:13px 24px;font-size:14px;font-weight:600;color:#fff;text-decoration:none;width:100%;margin-bottom:12px">▶ Voir la démo YouTube</a>` : ''}
+    <div style="background:#13131a;border:1px solid #2a2a38;border-radius:13px;padding:13px 30px;font-size:14px;color:#f0f0f0;cursor:pointer" onclick="this.closest('.modal-overlay').remove()">Fermer</div>`;
+  document.body.appendChild(m);
+}
+
+// ═══════════════════════════════════════════════════
+//  WORKOUT
+// ═══════════════════════════════════════════════════
+function startWorkout(){
+  S.exIdx=0; S.setNum=1; S.t0=Date.now();
+  showScreen('workoutScreen'); renderEx();
+}
+
+function getCurrentSession(){
+  if(bonusSession && document.getElementById('ovTitle').textContent.includes('BONUS') && document.getElementById('workoutScreen').classList.contains('active')){
+    return bonusSession;
+  }
+  return program.weeks[S.week].sessions[S.sIdx];
+}
+
+function renderEx(){
+  const s = getCurrentSession();
+  const e=s.exercises[S.exIdx];
+  const total=s.exercises.length;
+  document.getElementById('progFill').style.width=Math.round(S.exIdx/total*100)+'%';
+  document.getElementById('progLbl').textContent=`${S.exIdx+1} / ${total}`;
+  const isLastSet=S.setNum>=e.sets, isLastEx=S.exIdx>=total-1;
+  document.getElementById('actionBtn').textContent=
+    isLastSet?(isLastEx?'🏁 TERMINER':'EXERCICE SUIVANT →'):`SÉRIE ${S.setNum}/${e.sets} TERMINÉE ✓`;
+  let dots='';
+  for(let i=1;i<=e.sets;i++) dots+=`<div class="dot ${i<S.setNum?'done':i===S.setNum?'cur':''}"></div>`;
+  const eqHtml=e.ex.eq.map(k=>eqBadge(k)).join('');
+  document.getElementById('exView').innerHTML=`
+    <div class="ex-card">
+      <div class="ex-emoji">${e.ex.emoji}</div>
+      <div class="ex-title">${e.ex.name}</div>
+      <div class="ex-sub">${e.sets} séries × ${e.reps}</div>
+      <div class="ex-eq-row">${eqHtml}</div>
+      <div class="set-dots">${dots}</div>
+    </div>
+    <div class="desc-card">
+      <div class="desc-lbl">Comment faire</div>
+      <div class="desc-txt">${e.ex.desc}</div>
+    </div>
+    <div class="tip-card"><div class="tip-icon">💡</div><div class="tip-txt">${e.ex.tip}</div></div>
+    ${e.ex.yt ? `<a href="${e.ex.yt}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#cc0000;border-radius:13px;padding:12px;font-size:14px;font-weight:600;color:#fff;text-decoration:none">▶ Voir la démo YouTube</a>` : ''}`;
+  document.getElementById('exView').parentElement.scrollTop=0;
+}
+
+function nextAction(){
+  const s=getCurrentSession();
+  const e=s.exercises[S.exIdx];
+  const isLastSet=S.setNum>=e.sets, isLastEx=S.exIdx>=s.exercises.length-1;
+  if(isLastSet&&isLastEx){finishWorkout();return;}
+  const nextEx=isLastSet ? s.exercises[S.exIdx+1] : null;
+  const restTime=e.ex.eq.includes('BZ')||e.ex.eq.includes('PU')?75:60;
+  showRest(restTime, nextEx, ()=>{
+    if(isLastSet){S.exIdx++;S.setNum=1;} else S.setNum++;
+    renderEx();
+  });
+}
+
+function skipEx(){
+  const s=getCurrentSession();
+  if(S.exIdx>=s.exercises.length-1){finishWorkout();return;}
+  S.exIdx++;S.setNum=1;renderEx();
+}
+
+function showRest(sec, nextEx, cb){
+  let t=sec;
+  document.getElementById('restNum').textContent=t;
+
+  // Show next exercise details if changing exercise
+  const nextExBox=document.getElementById('restNextEx');
+  if(nextEx){
+    document.getElementById('rneN').textContent=nextEx.ex.name+' '+nextEx.ex.emoji;
+    document.getElementById('rneD').textContent=nextEx.ex.desc;
+    document.getElementById('rneT').textContent='💡 '+nextEx.ex.tip;
+    nextExBox.style.display='block';
+    document.getElementById('restNxt').style.display='none';
+  } else {
+    nextExBox.style.display='none';
+    document.getElementById('restNxt').style.display='block';
+    document.getElementById('restNxt').innerHTML='Prochaine série — Récupère bien !';
+  }
+
+  const ov=document.getElementById('restOverlay');
+  ov.classList.add('on'); ov._cb=cb;
+
+  S.restInt=setInterval(()=>{
+    t--;
+    document.getElementById('restNum').textContent=t;
+    if(t<=0){clearInterval(S.restInt);ov.classList.remove('on');cb();}
+  },1000);
+}
+
+// Timer continues running even when user switches to YouTube
+
+function skipRest(){
+  clearInterval(S.restInt);
+  const ov=document.getElementById('restOverlay');
+  const cb=ov._cb;
+  ov.classList.remove('on');
+  if(cb)cb();
+}
+
+function confirmQuit(){
+  if(confirm('Abandonner la séance ?')){clearInterval(S.restInt);document.getElementById('restOverlay').classList.remove('on');goHome();}
+}
+
+function finishWorkout(){
+  const s=getCurrentSession();
+  const mins=Math.max(1,Math.round((Date.now()-S.t0)/60000));
+  const totalSets=s.exercises.reduce((a,e)=>a+e.sets,0);
+  const label = s.isBonus ? 'BONUS' : `${s.name} — Semaine ${S.week+1}`;
+  document.getElementById('doneSub').textContent=`${label} complétée. Récupère bien !`;
+  document.getElementById('dEx').textContent=s.exercises.length;
+  document.getElementById('dSets').textContent=totalSets;
+  document.getElementById('dTime').textContent=mins;
+  if(!s.isBonus) markDone(S.week, S.sIdx);
+  if(s.isBonus) bonusSession=null;
+  showScreen('doneScreen');
+}
+
+// ═══════════════════════════════════════════════════
+//  ROUTINES D'ÉTIREMENTS — 5 min, 6 étirements ~45s
+// ═══════════════════════════════════════════════════
+const STRETCH = {
+  push: [
+    { name:"Étirement Pectoraux", emoji:"🫁", dur:40,
+      desc:"Debout, entrelace les doigts dans le dos, pousse les mains vers le bas et ouvre la poitrine vers le plafond. Respire profondément.",
+      tip:"Garde les épaules basses — pas haussées vers les oreilles." },
+    { name:"Étirement Triceps", emoji:"💪", dur:30,
+      desc:"Lève un bras, plie le coude derrière la tête. De l'autre main, pousse doucement le coude vers l'arrière. Alterne.",
+      tip:"Respire et tiens sans forcer — 30 secondes par bras." },
+    { name:"Rotation Thoracique", emoji:"🌀", dur:40,
+      desc:"Assis ou à genoux, pose une main derrière la tête. Ouvre le coude vers le plafond en faisant pivoter le buste. 5 rotations lentes de chaque côté.",
+      tip:"Le bas du dos reste immobile — seul le haut du dos tourne." },
+    { name:"Étirement Épaules", emoji:"🙆", dur:40,
+      desc:"Passe un bras devant la poitrine, l'autre main tire le coude vers toi. Tiens 20 secondes puis change de bras.",
+      tip:"Le bras tiré reste parallèle au sol pour cibler le deltoïde postérieur." },
+    { name:"Mobilité Cervicale", emoji:"🧠", dur:30,
+      desc:"Incline doucement la tête vers l'épaule droite, puis la gauche. Ensuite, regarde lentement à droite et à gauche. 5 fois de chaque côté.",
+      tip:"Mouvement lent et doux. Jamais de rotation forcée ou rapide." },
+    { name:"Posture du Chien Tête en Bas", emoji:"🐕", dur:45,
+      desc:"À quatre pattes, pousse les hanches vers le plafond, jambes tendues, talons vers le sol. Tiens et respire en ouvrant les épaules.",
+      tip:"Si les ischio-jambiers sont raides, garde légèrement les genoux pliés." },
+  ],
+  pull: [
+    { name:"Étirement Grand Dorsal", emoji:"🌊", dur:45,
+      desc:"Debout face à un montant ou la barre TRX, prends-la d'une main, recule le pied du même côté et laisse ton corps s'ouvrir sur le côté. Tiens 20s, change.",
+      tip:"Plus tu t'éloignes du point d'accroche, plus l'étirement est intense." },
+    { name:"Étirement Biceps", emoji:"💪", dur:40,
+      desc:"Bras tendu, paume vers le haut, pousse le poignet vers le bas avec l'autre main. Tu sens l'étirement sous l'avant-bras et le biceps. Change de bras.",
+      tip:"Idéal après le curl barre Z — relâche complètement la tension musculaire." },
+    { name:"Étirement Rhomboïdes", emoji:"🔙", dur:40,
+      desc:"Entrelace les doigts devant toi, pousse les mains loin en avant en arrondissant le haut du dos comme un chat. Tiens et respire.",
+      tip:"L'opposé exact du rowing — tu ouvres l'espace entre les omoplates." },
+    { name:"Rotation Thoracique", emoji:"🌀", dur:40,
+      desc:"Assis ou à genoux, pose une main derrière la tête. Ouvre le coude vers le plafond en faisant pivoter le buste. 5 rotations de chaque côté.",
+      tip:"Le bas du dos reste immobile — seul le haut du dos tourne." },
+    { name:"Étirement Avant-Bras", emoji:"🤲", dur:30,
+      desc:"Bras tendu devant toi, paume vers le bas. Avec l'autre main, tire les doigts vers toi. Tiens 15s. Puis paume vers le haut, tire les doigts vers le bas. Change.",
+      tip:"Indispensable après la barre Z et les tractions pour protéger les poignets." },
+    { name:"Posture de l'Enfant", emoji:"🧒", dur:45,
+      desc:"À genoux, assis sur les talons, tends les bras devant toi au sol. Laisse le front descendre vers le sol. Respire profondément dans le bas du dos.",
+      tip:"Écarte légèrement les genoux pour plus d'espace et un étirement plus profond." },
+  ],
+  legs: [
+    { name:"Étirement Quadriceps", emoji:"🦵", dur:40,
+      desc:"Debout, tiens un pied derrière toi (ou utilise le TRX pour l'équilibre). Genou pointé vers le sol, hanches vers l'avant. 20 secondes par jambe.",
+      tip:"⚠️ Sur la cheville blessée, utilise la sangle TRX pour l'équilibre absolu." },
+    { name:"Étirement Ischio-Jambiers", emoji:"🦿", dur:45,
+      desc:"Allongé sur le dos, soulève une jambe tendue vers le plafond en tenant l'arrière de la cuisse. L'autre jambe reste au sol. 20s par jambe.",
+      tip:"Ne force pas — si ça tire trop, plie légèrement le genou." },
+    { name:"Étirement Fessiers", emoji:"🍑", dur:40,
+      desc:"Allongé sur le dos, croise une cheville sur le genou opposé. Tire la jambe du dessous vers la poitrine. Tu sens l'étirement dans la fesse. Change.",
+      tip:"Pour intensifier, pousse le genou croisé vers l'extérieur avec le coude." },
+    { name:"Fente Basse — Hip Flexor", emoji:"🏹", dur:45,
+      desc:"En fente basse, genou arrière au sol. Pousse les hanches vers l'avant et vers le bas. Garde le buste droit. 20 secondes par côté.",
+      tip:"⚠️ Si la cheville blessée est en avant, réduis l'amplitude de la fente." },
+    { name:"Étirement Mollets", emoji:"🦶", dur:40,
+      desc:"Debout face à un mur, une jambe tendue en arrière, talon bien à plat. Penche le corps vers le mur. 20 secondes par jambe.",
+      tip:"⚠️ Commence par des étirements doux pour la cheville blessée. Pas de douleur." },
+    { name:"Posture du Pigeon", emoji:"🕊️", dur:50,
+      desc:"À quatre pattes, ramène un genou vers la main du même côté, étends la jambe arrière. Descends progressivement vers le sol. Tiens 25s par côté.",
+      tip:"Un des étirements les plus puissants pour les hanches et les fessiers." },
+  ],
+  full: [
+    { name:"Posture du Chien Tête en Bas", emoji:"🐕", dur:45,
+      desc:"À quatre pattes, pousse les hanches vers le plafond, jambes tendues, talons vers le sol. Ouvre les épaules et respire profondément.",
+      tip:"Alterne en levant alternativement chaque talon pour étirer aussi les mollets." },
+    { name:"Rotation Thoracique", emoji:"🌀", dur:40,
+      desc:"Assis ou à genoux, main derrière la tête. Ouvre le coude vers le plafond en faisant pivoter le buste. 5 rotations lentes de chaque côté.",
+      tip:"Seul le haut du dos tourne — le bas du dos reste immobile." },
+    { name:"Fente Basse — Hip Flexor", emoji:"🏹", dur:45,
+      desc:"En fente basse, genou arrière au sol. Hanches vers l'avant et le bas. Buste droit, bras levés pour plus d'amplitude. 20s par côté.",
+      tip:"⚠️ Adapte l'amplitude selon la cheville blessée." },
+    { name:"Étirement Grand Dorsal", emoji:"🌊", dur:40,
+      desc:"Face à la barre TRX, prends d'une main et recule le pied du même côté. Laisse ton corps s'ouvrir sur le côté. Tiens 20s, change de côté.",
+      tip:"Respire dans l'étirement — expire pour aller plus loin." },
+    { name:"Étirement Pectoraux", emoji:"🫁", dur:40,
+      desc:"Debout, entrelace les doigts dans le dos, pousse les mains vers le bas et ouvre la poitrine vers le plafond.",
+      tip:"Idéal pour contrebalancer tous les exercices de tirage et de poussée." },
+    { name:"Posture de l'Enfant", emoji:"🧒", dur:50,
+      desc:"À genoux, assis sur les talons, tends les bras devant toi au sol. Laisse le front descendre vers le sol. Respire profondément dans tout le dos.",
+      tip:"Prise large pour ouvrir les dorsaux, prise serrée pour le bas du dos." },
+  ],
+};
+
+// ═══════════════════════════════════════════════════
+//  STRETCHING LOGIC
+// ═══════════════════════════════════════════════════
+let stretchState = { type:'full', idx:0, timer:null, remaining:0 };
+
+function startStretching(){
+  const s = getCurrentSession ? getCurrentSession() : null;
+  stretchState.type = s ? (s.isBonus ? 'full' : s.type) : 'full';
+  stretchState.idx = 0;
+  showScreen('stretchScreen');
+  renderStretch();
+}
+
+function stopStretching(){
+  clearInterval(stretchState.timer);
+  showScreen('doneScreen');
+}
+
+function renderStretch(){
+  const routine = STRETCH[stretchState.type] || STRETCH.full;
+  const item = routine[stretchState.idx];
+  const total = routine.length;
+
+  document.getElementById('stretchProgFill').style.width = Math.round(stretchState.idx/total*100)+'%';
+  document.getElementById('stretchProgLbl').textContent = `${stretchState.idx+1} / ${total}`;
+  document.getElementById('stretchBtn').textContent = stretchState.idx < total-1 ? 'SUIVANT →' : '✓ TERMINER';
+
+  stretchState.remaining = item.dur;
+
+  document.getElementById('stretchView').innerHTML = `
+    <div class="ex-card" style="min-height:180px">
+      <div class="ex-emoji">${item.emoji}</div>
+      <div class="ex-title">${item.name}</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">${item.dur} secondes</div>
+    </div>
+    <div class="desc-card">
+      <div class="desc-lbl">Comment faire</div>
+      <div class="desc-txt">${item.desc}</div>
+    </div>
+    <div class="tip-card"><div class="tip-icon">💡</div><div class="tip-txt">${item.tip}</div></div>
+    <div style="background:var(--surface);border-radius:16px;border:1px solid var(--border);padding:20px;display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)">Temps restant</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:64px;color:var(--accent);line-height:1" id="stretchTimer">${item.dur}</div>
+    </div>`;
+
+  document.getElementById('stretchView').parentElement.scrollTop=0;
+
+  clearInterval(stretchState.timer);
+  stretchState.timer = setInterval(()=>{
+    stretchState.remaining--;
+    const el = document.getElementById('stretchTimer');
+    if(el) el.textContent = stretchState.remaining;
+    if(stretchState.remaining <= 0){
+      clearInterval(stretchState.timer);
+      // Auto advance after 1s pause
+      setTimeout(()=>{ nextStretch(true); }, 800);
+    }
+  }, 1000);
+}
+
+function nextStretch(auto=false){
+  const routine = STRETCH[stretchState.type] || STRETCH.full;
+  clearInterval(stretchState.timer);
+  if(stretchState.idx >= routine.length - 1){
+    showScreen('stretchDoneScreen');
+    return;
+  }
+  stretchState.idx++;
+  renderStretch();
+}
+function goHome(){ renderHome(); showScreen('homeScreen'); }
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  el.classList.add('active','up');
+  setTimeout(()=>el.classList.remove('up'),350);
+}
+
+init();
+</script>
+</body>
+</html>
